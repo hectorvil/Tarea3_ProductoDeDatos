@@ -64,6 +64,13 @@ El modelo principal es un enfoque en **dos etapas**: primero estima si habrá ve
 └── uv.lock
 
 ```
+## Calidad de Código
+
+Para verificar linting:
+<img width="1662" height="1132" alt="36134EC1-1BC8-4535-A74A-D9294D8EEA4A" src="https://github.com/user-attachments/assets/bc75fab3-ecf2-433f-b457-361d43757a5c" />
+
+---
+
 ## Detalle
 
 ### Notebooks
@@ -99,7 +106,24 @@ Los scripts se ejecutan desde la raíz del repo y siguen la estructura antes men
   - Salida: `data/predictions/submission.csv`
 
 ---
+## Métricas del modelo
 
+- **Kaggle (Predict Future Sales)**
+  - Public Score (RMSE): **1.01797**
+  - Private Score (RMSE): **1.01588**
+  - Leaderboard: https://www.kaggle.com/competitions/competitive-data-science-predict-future-sales/leaderboard
+
+![Kaggle score](assets/kaggle_score.png)
+---
+## Dependencias principales
+
+- **pandas**
+- **numpy**
+- **lightgbm**
+- **scikit-learn**
+- **joblib**
+- **pyarrow** 
+---
 ## Cómo ejecutar el pipeline con uv
 
 ### Preprocesamiento y features
