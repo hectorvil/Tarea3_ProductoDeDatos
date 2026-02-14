@@ -15,34 +15,55 @@ El modelo principal es un enfoque en **dos etapas**: primero estima si habrá ve
 ```text
 .
 ├── artifacts
-│   └── model.joblib
+│   ├── logs
+│   │   ├── inference_20260214_000519.log
+│   │   ├── prep_20260213_235935.log
+│   │   └── train_20260214_000203.log
+│   └── model.joblib
 ├── data
-│   ├── inference
-│   │   └── test_features.parquet
-│   ├── predictions
-│   │   └── submission.csv
-│   ├── prep
-│   │   ├── meta.json
-│   │   ├── test_features.parquet
-│   │   ├── test_pairs.parquet
-│   │   ├── train.parquet
-│   │   └── valid.parquet
-│   └── raw
-│       ├── sales_train.csv
-│       └── test.csv
+│   ├── inference
+│   │   └── test_features.parquet
+│   ├── predictions
+│   │   └── submission.csv
+│   ├── prep
+│   │   ├── meta.json
+│   │   ├── test_features.parquet
+│   │   ├── test_pairs.parquet
+│   │   ├── train.parquet
+│   │   └── valid.parquet
+│   └── raw
+│       ├── sales_train.csv
+│       └── test.csv
+├── main.py
 ├── notebooks
-│   ├── Entendimientodelos_datosEDA.ipynb
-│   ├── FeatureEngineering.ipynb
-│   ├── Modeling.ipynb
-│   └── SimulationComparation.ipynb
+│   ├── Entendimientodelos_datosEDA.ipynb
+│   ├── FeatureEngineering.ipynb
+│   ├── Modeling.ipynb
+│   └── SimulationComparation.ipynb
 ├── pyproject.toml
+├── README.md
 ├── src
-│   ├── __init__.py
-│   ├── inference.py
-│   ├── prep.py
-│   └── train.py
-└── tree.txt
----
+│   ├── __init__.py
+│   ├── __pycache__
+│   │   ├── __init__.cpython-312.pyc
+│   │   ├── config.cpython-312.pyc
+│   │   ├── inference.cpython-312.pyc
+│   │   ├── prep.cpython-312.pyc
+│   │   └── train.cpython-312.pyc
+│   ├── config.py
+│   ├── inference.py
+│   ├── prep.py
+│   ├── train.py
+│   └── utils
+│       ├── __init__.py
+│       ├── __pycache__
+│       ├── data_validation.py
+│       ├── logging_utils.py
+│       └── metrics.py
+├── tree.txt
+└── uv.lock
+
+```
 ## Detalle
 
 ### Notebooks
@@ -82,25 +103,29 @@ Los scripts se ejecutan desde la raíz del repo y siguen la estructura antes men
 ## Cómo ejecutar el pipeline con uv
 
 ### Preprocesamiento y features
-```bash
+```text
 uv run python -m src.prep
-
+```
 ### Entrenamiento
+```text
 uv run python -m src.train
+```
 ### Inference batch
+```text
 uv run python -m src.inference
+```
 ### Outputs esperados
--data/prep/train.parquet, data/prep/valid.parquet, data/prep/test_features.parquet, data/prep/test_pairs.parquet, data/prep/meta.json
 
--artifacts/model.joblib
+- data/prep/train.parquet, data/prep/valid.parquet, data/prep/test_features.parquet, data/prep/test_pairs.parquet, data/prep/meta.json
 
--data/predictions/submission.csv
+- artifacts/model.joblib
+
+- data/predictions/submission.csv
 
 Referencias
 
 Manokhin, V. (n.d.). Mastering modern time series forecasting: A comprehensive guide to statistical, machine learning, and deep learning models in Python (Early Access). Leanpub.
 
 OpenAI. (2023). ChatGPT (Mar 14 version) [Large language model versión 5.2]. https://chat.openai.com/
-
 
 
