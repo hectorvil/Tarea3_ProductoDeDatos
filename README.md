@@ -113,7 +113,6 @@ Los scripts se ejecutan desde la raíz del repo y siguen la estructura antes men
   - Private Score (RMSE): **1.01588**
   - Leaderboard: https://www.kaggle.com/competitions/competitive-data-science-predict-future-sales/leaderboard
 
-![Kaggle score](assets/kaggle_score.png)
 ---
 ## Dependencias principales
 
