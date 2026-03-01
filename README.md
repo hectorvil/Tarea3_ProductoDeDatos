@@ -254,7 +254,38 @@ uv run python -m src.inference
   
 
   ---
+## Construcción de Imágenes Docker en EC2
 
+A continuación se muestra evidencia de la construcción de imágenes Docker dentro de una instancia EC2.
+
+### Build — preprocessing
+<img width="1868" height="906" alt="E1692F50-E5F6-48C7-A654-191680406115" src="https://github.com/user-attachments/assets/c62ced5e-2e59-4453-983b-c001e1ae3532" />
+
+
+### Build — training and inference
+<img width="1610" height="1354" alt="88419B52-E881-4B2B-9C32-5E567042BA61" src="https://github.com/user-attachments/assets/32388fa3-4749-46f5-93aa-0e48e3807e08" />
+
+
+
+---
+
+## Ejecución de Contenedores con argumentos y logs en EC2
+
+Los contenedores se ejecutan montando volúmenes para `data/` y `artifacts/`, y pasando argumentos por CLI.
+
+### Run — preprocessing
+
+<img width="1628" height="1126" alt="27997980-DFF3-4BE0-928C-070C04A66940" src="https://github.com/user-attachments/assets/521c251e-140e-43af-b0b7-de31e7a8a303" />
+
+### Run — training con hiperparámetros
+
+<img width="1186" height="962" alt="AE557DCE-04CB-413D-B82A-BDD7D1585C54" src="https://github.com/user-attachments/assets/4d0976ee-5dc8-44ec-99d6-6ed4ae723800" />
+
+### Run — inference
+<img width="1860" height="1210" alt="4726EBB8-2011-442A-8533-82307E06514B" src="https://github.com/user-attachments/assets/dda34b11-de45-48a5-b00f-9a2278ceb3df" />
+
+
+---
 
 ## Pruebas Unitarias
 
