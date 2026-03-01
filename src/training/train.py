@@ -17,6 +17,10 @@ Salidas
 
 from __future__ import annotations
 
+import argparse
+import shutil
+from pathlib import Path
+
 import json
 import logging
 import time
@@ -197,23 +201,27 @@ def evaluate_valid(
     logger: logging.Logger,
 ) -> float:
     """
-    Evalúa RMSE en validación para pred = clip(p * mu, 0, 20).
+    Evalúa el modelo en validación aplicando calibración fija sobre la
+    probabilidad del clasificador.
+
+    Predicción final:
+        y_hat = clip((prob_valid ** alpha) * mu_valid,
+                     TARGET_MIN, TARGET_MAX)
+
+    Donde alpha fue seleccionado previamente mediante búsqueda en
+    validación y se fija para mantener estabilidad.
     """
-    pred_valid = np.clip(prob_valid * mu_valid, TARGET_MIN, TARGET_MAX)
-    score = rmse(valid_split.y.to_numpy(), pred_valid)
+    y_true = valid_split.y.to_numpy()
+
+    alpha = 0.90
+    raw_pred = (prob_valid ** alpha) * mu_valid
+    pred_valid = np.clip(raw_pred, TARGET_MIN, TARGET_MAX)
+    score = rmse(y_true, pred_valid)
+
+    logger.info("Alpha fijo usado: %.2f", alpha)
     logger.info("RMSE en validación: %.6f", score)
 
-    n_peaks_5 = int((valid_split.y >= 5).sum())
-    n_peaks_10 = int((valid_split.y >= 10).sum())
-    n_peaks_15 = int((valid_split.y >= 15).sum())
-    logger.info(
-        "Picos en validación: y>=5=%d, y>=10=%d, y>=15=%d",
-        n_peaks_5,
-        n_peaks_10,
-        n_peaks_15,
-    )
     return score
-
 
 def entrenar_modelo_dos_etapas(
     inputs: TrainInputs, logger: logging.Logger
@@ -299,6 +307,43 @@ def main() -> None:
     duration = time.perf_counter() - start
     logger.info("Entrenamiento terminado. duracion_seg=%.2f", duration)
 
+
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(description="Training del modelo de dos etapas")
+    parser.add_argument("--prep-dir", type=Path, default=PREP_DIR)
+    parser.add_argument("--artifacts-dir", type=Path, default=ARTIFACTS_DIR)
+    parser.add_argument("--log-dir", type=Path, default=LOG_DIR)
+
+    parser.add_argument("--clf-n-estimators", type=int, default=LGBM_CLASSIFIER_PARAMS["n_estimators"])
+    parser.add_argument("--reg-n-estimators", type=int, default=LGBM_REGRESSOR_PARAMS["n_estimators"])
+    parser.add_argument("--learning-rate", type=float, default=LGBM_CLASSIFIER_PARAMS["learning_rate"])
+    parser.add_argument("--num-leaves", type=int, default=LGBM_CLASSIFIER_PARAMS["num_leaves"])
+    return parser
+
+
+def cli_main(argv: list[str] | None = None) -> None:
+    args = build_parser().parse_args(argv)
+
+    global PREP_DIR, ARTIFACTS_DIR, LOG_DIR
+    PREP_DIR = args.prep_dir
+    ARTIFACTS_DIR = args.artifacts_dir
+    LOG_DIR = args.log_dir
+
+    global LGBM_CLASSIFIER_PARAMS, LGBM_REGRESSOR_PARAMS
+    LGBM_CLASSIFIER_PARAMS = {
+        **LGBM_CLASSIFIER_PARAMS,
+        "n_estimators": args.clf_n_estimators,
+        "learning_rate": args.learning_rate,
+        "num_leaves": args.num_leaves,
+    }
+    LGBM_REGRESSOR_PARAMS = {
+        **LGBM_REGRESSOR_PARAMS,
+        "n_estimators": args.reg_n_estimators,
+        "learning_rate": args.learning_rate,
+        "num_leaves": args.num_leaves,
+    }
+
+    main()
 
 if __name__ == "__main__":
     main()
