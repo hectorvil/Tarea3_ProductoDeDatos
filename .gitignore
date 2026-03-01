@@ -4,3 +4,4 @@ src/__pycache__/
 src/utils/__pycache__/
 artifacts/model.joblib
 artifacts/logs/
+.DS_Store
