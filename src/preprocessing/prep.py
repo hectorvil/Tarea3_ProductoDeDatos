@@ -17,8 +17,10 @@ Salidas
 - data/prep/test_pairs.parquet
 - data/prep/meta.json
 """
-
 from __future__ import annotations
+
+import argparse
+from pathlib import Path
 
 import gc
 import json
@@ -639,6 +641,24 @@ def main() -> None:
         duration_total = time.perf_counter() - start_total
         logger.info("Prep terminado. duracion_total_seg=%.2f", duration_total)
 
+
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(description="Preprocessing y feature engineering")
+    parser.add_argument("--raw-dir", type=Path, default=RAW_DIR)
+    parser.add_argument("--prep-dir", type=Path, default=PREP_DIR)
+    parser.add_argument("--log-dir", type=Path, default=LOG_DIR)
+    return parser
+
+
+def cli_main(argv: list[str] | None = None) -> None:
+    args = build_parser().parse_args(argv)
+
+    global RAW_DIR, PREP_DIR, LOG_DIR
+    RAW_DIR = args.raw_dir
+    PREP_DIR = args.prep_dir
+    LOG_DIR = args.log_dir
+
+    main()
 
 if __name__ == "__main__":
     main()
