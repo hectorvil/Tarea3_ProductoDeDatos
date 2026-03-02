@@ -17,6 +17,10 @@ Salidas
 
 from __future__ import annotations
 
+import argparse
+import shutil
+from pathlib import Path
+
 import json
 import logging
 import time
@@ -303,6 +307,43 @@ def main() -> None:
     duration = time.perf_counter() - start
     logger.info("Entrenamiento terminado. duracion_seg=%.2f", duration)
 
+
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(description="Training del modelo de dos etapas")
+    parser.add_argument("--prep-dir", type=Path, default=PREP_DIR)
+    parser.add_argument("--artifacts-dir", type=Path, default=ARTIFACTS_DIR)
+    parser.add_argument("--log-dir", type=Path, default=LOG_DIR)
+
+    parser.add_argument("--clf-n-estimators", type=int, default=LGBM_CLASSIFIER_PARAMS["n_estimators"])
+    parser.add_argument("--reg-n-estimators", type=int, default=LGBM_REGRESSOR_PARAMS["n_estimators"])
+    parser.add_argument("--learning-rate", type=float, default=LGBM_CLASSIFIER_PARAMS["learning_rate"])
+    parser.add_argument("--num-leaves", type=int, default=LGBM_CLASSIFIER_PARAMS["num_leaves"])
+    return parser
+
+
+def cli_main(argv: list[str] | None = None) -> None:
+    args = build_parser().parse_args(argv)
+
+    global PREP_DIR, ARTIFACTS_DIR, LOG_DIR
+    PREP_DIR = args.prep_dir
+    ARTIFACTS_DIR = args.artifacts_dir
+    LOG_DIR = args.log_dir
+
+    global LGBM_CLASSIFIER_PARAMS, LGBM_REGRESSOR_PARAMS
+    LGBM_CLASSIFIER_PARAMS = {
+        **LGBM_CLASSIFIER_PARAMS,
+        "n_estimators": args.clf_n_estimators,
+        "learning_rate": args.learning_rate,
+        "num_leaves": args.num_leaves,
+    }
+    LGBM_REGRESSOR_PARAMS = {
+        **LGBM_REGRESSOR_PARAMS,
+        "n_estimators": args.reg_n_estimators,
+        "learning_rate": args.learning_rate,
+        "num_leaves": args.num_leaves,
+    }
+
+    main()
 
 if __name__ == "__main__":
     main()

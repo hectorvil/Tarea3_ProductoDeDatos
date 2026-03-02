@@ -18,6 +18,9 @@ Salida
 
 from __future__ import annotations
 
+import argparse
+from pathlib import Path
+
 import logging
 import shutil
 import time
@@ -42,7 +45,7 @@ from src.config import (
 from src.utils.data_validation import require_columns, require_file
 from src.utils.logging_utils import get_logger
 
-
+    
 @dataclass(frozen=True)
 class InferenceInputs:
     """Inputs necesarios para inferencia batch."""
@@ -233,6 +236,30 @@ def main() -> None:
         duration = time.perf_counter() - start
         logger.info("Inferencia terminada. duracion_seg=%.2f", duration)
 
+
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(description="Batch inference")
+    parser.add_argument("--inference-dir", type=Path, default=INFERENCE_DIR)
+    parser.add_argument("--prep-dir", type=Path, default=PREP_DIR)
+    parser.add_argument("--raw-dir", type=Path, default=RAW_DIR)
+    parser.add_argument("--artifacts-dir", type=Path, default=ARTIFACTS_DIR)
+    parser.add_argument("--predictions-dir", type=Path, default=PREDICTIONS_DIR)
+    parser.add_argument("--log-dir", type=Path, default=LOG_DIR)
+    return parser
+
+
+def cli_main(argv: list[str] | None = None) -> None:
+    args = build_parser().parse_args(argv)
+
+    global INFERENCE_DIR, PREP_DIR, RAW_DIR, ARTIFACTS_DIR, PREDICTIONS_DIR, LOG_DIR
+    INFERENCE_DIR = args.inference_dir
+    PREP_DIR = args.prep_dir
+    RAW_DIR = args.raw_dir
+    ARTIFACTS_DIR = args.artifacts_dir
+    PREDICTIONS_DIR = args.predictions_dir
+    LOG_DIR = args.log_dir
+
+    main()
 
 if __name__ == "__main__":
     main()
