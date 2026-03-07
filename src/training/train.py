@@ -42,6 +42,13 @@ from src.config import (
     TARGET_MAX,
     TARGET_MIN,
 )
+
+import os
+
+# Si estamos en SageMaker, usamos el directorio de datos del training job
+if os.environ.get("SM_CHANNEL_TRAIN"):
+    PREP_DIR = Path(os.environ["SM_CHANNEL_TRAIN"])
+
 from src.utils.data_validation import require_file
 from src.utils.logging_utils import get_logger
 from src.utils.metrics import rmse
@@ -288,17 +295,20 @@ def main() -> None:
     logger.info("Iniciando entrenamiento.")
 
     try:
-        inputs = cargar_datasets(PREP_DIR)
-        logger.info(
-            "Datasets cargados. train_rows=%d valid_rows=%d",
-            len(inputs.train_df),
-            len(inputs.valid_df),
-        )
+    prep_dir = Path(os.environ.get("SM_CHANNEL_TRAIN", PREP_DIR))
 
-        bundle, score = entrenar_modelo_dos_etapas(inputs, logger)
-        guardar_modelo(ARTIFACTS_DIR, bundle, inputs.meta, logger)
+    inputs = cargar_datasets(prep_dir)
 
-        logger.info("RMSE final (validación): %.6f", score)
+    logger.info(
+        "Datasets cargados. train_rows=%d valid_rows=%d",
+        len(inputs.train_df),
+        len(inputs.valid_df),
+    )
+
+    bundle, score = entrenar_modelo_dos_etapas(inputs, logger)
+    guardar_modelo(ARTIFACTS_DIR, bundle, inputs.meta, logger)
+
+    logger.info("RMSE final (validación): %.6f", score)
 
     except Exception as exc:  # noqa: BLE001
         logger.exception("Fallo en entrenamiento: %s", str(exc))
