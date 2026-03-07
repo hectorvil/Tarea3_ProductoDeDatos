@@ -314,6 +314,10 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--artifacts-dir", type=Path, default=ARTIFACTS_DIR)
     parser.add_argument("--log-dir", type=Path, default=LOG_DIR)
 
+    parser.add_argument("--model-dir", type=Path, default="/opt/ml/model")
+    parser.add_argument("--train-dir", type=Path, default="/opt/ml/input/data/train")
+    parser.add_argument("--output-dir", type=Path, default="/opt/ml/output")   
+
     parser.add_argument("--clf-n-estimators", type=int, default=LGBM_CLASSIFIER_PARAMS["n_estimators"])
     parser.add_argument("--reg-n-estimators", type=int, default=LGBM_REGRESSOR_PARAMS["n_estimators"])
     parser.add_argument("--learning-rate", type=float, default=LGBM_CLASSIFIER_PARAMS["learning_rate"])
