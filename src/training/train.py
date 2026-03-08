@@ -295,20 +295,22 @@ def main() -> None:
     logger.info("Iniciando entrenamiento.")
 
     try:
-    prep_dir = Path(os.environ.get("SM_CHANNEL_TRAIN", PREP_DIR))
+        prep_dir = Path("/opt/ml/input/data/train") if Path("/opt/ml/input/data/train").exists() else PREP_DIR
 
-    inputs = cargar_datasets(prep_dir)
+        inputs = cargar_datasets(prep_dir)
 
-    logger.info(
-        "Datasets cargados. train_rows=%d valid_rows=%d",
-        len(inputs.train_df),
-        len(inputs.valid_df),
-    )
+        logger.info(
+            "Datasets cargados. train_rows=%d valid_rows=%d",
+            len(inputs.train_df),
+            len(inputs.valid_df),
+        )
 
-    bundle, score = entrenar_modelo_dos_etapas(inputs, logger)
-    guardar_modelo(ARTIFACTS_DIR, bundle, inputs.meta, logger)
+        bundle, score = entrenar_modelo_dos_etapas(inputs, logger)
 
-    logger.info("RMSE final (validación): %.6f", score)
+        artifacts_dir = Path("/opt/ml/model") if Path("/opt/ml/model").exists() else ARTIFACTS_DIR
+        guardar_modelo(artifacts_dir, bundle, inputs.meta, logger)
+
+        logger.info("RMSE final (validación): %.6f", score)
 
     except Exception as exc:  # noqa: BLE001
         logger.exception("Fallo en entrenamiento: %s", str(exc))
