@@ -85,7 +85,8 @@ La mejora resulta consistente, sin modificar arquitectura ni hiperparámetros pr
 │   ├── Entendimientodelos_datosEDA.ipynb
 │   ├── FeatureEngineering.ipynb
 │   ├── Modeling.ipynb
-│   └── SimulationComparation.ipynb
+│   ├── SimulationComparation.ipynb
+│   └── Tarea05_BYOC_SageMaker.ipynb
 ├── pyproject.toml
 ├── README.md
 ├── src
