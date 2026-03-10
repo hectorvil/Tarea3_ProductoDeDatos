@@ -1,0 +1,36 @@
+#!/usr/bin/env python3
+from __future__ import annotations
+
+import json
+from pathlib import Path
+
+from src.training.train import cli_main
+from src.config import LGBM_CLASSIFIER_PARAMS, LGBM_REGRESSOR_PARAMS
+
+HP_PATH = Path("/opt/ml/input/config/hyperparameters.json")
+
+
+def _load_hps() -> dict[str, str]:
+    if HP_PATH.exists():
+        return json.loads(HP_PATH.read_text(encoding="utf-8"))
+    return {}
+
+
+def main() -> None:
+    hps = _load_hps()
+
+    argv = [
+        "--prep-dir", "/opt/ml/input/data/prep",
+        "--artifacts-dir", "/opt/ml/model",
+        "--log-dir", "/tmp/logs",
+        "--clf-n-estimators", str(hps.get("clf_n_estimators", LGBM_CLASSIFIER_PARAMS["n_estimators"])),
+        "--reg-n-estimators", str(hps.get("reg_n_estimators", LGBM_REGRESSOR_PARAMS["n_estimators"])),
+        "--learning-rate", str(hps.get("learning_rate", LGBM_CLASSIFIER_PARAMS["learning_rate"])),
+        "--num-leaves", str(hps.get("num_leaves", LGBM_CLASSIFIER_PARAMS["num_leaves"])),
+    ]
+
+    cli_main(argv)
+
+
+if __name__ == "__main__":
+    main()
