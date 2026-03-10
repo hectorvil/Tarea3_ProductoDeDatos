@@ -45,54 +45,87 @@ La mejora resulta consistente, sin modificar arquitectura ni hiperparámetros pr
 ```text
 .
 ├── artifacts
-│   ├── logs
-│   │   ├── inference_20260214_000519.log
-│   │   ├── prep_20260213_235935.log
-│   │   └── train_20260214_000203.log
-│   └── model.joblib
+│   ├── logs
+│   │   ├── inference_20260214_000519.log
+│   │   ├── inference_20260301_122327.log
+│   │   ├── prep_20260213_235935.log
+│   │   ├── prep_20260301_122239.log
+│   │   ├── train_20260214_000203.log
+│   │   └── train_20260301_122252.log
+│   └── model.joblib
+├── container
+│   ├── build_and_push.sh
+│   ├── Dockerfile
+│   ├── predictor.py
+│   ├── serve
+│   ├── train
+│   └── wsgi.py
 ├── data
-│   ├── inference
-│   │   └── test_features.parquet
-│   ├── predictions
-│   │   └── submission.csv
-│   ├── prep
-│   │   ├── meta.json
-│   │   ├── test_features.parquet
-│   │   ├── test_pairs.parquet
-│   │   ├── train.parquet
-│   │   └── valid.parquet
-│   └── raw
-│       ├── sales_train.csv
-│       └── test.csv
+│   ├── inference
+│   │   └── test_features.parquet
+│   ├── predictions
+│   │   └── submission.csv
+│   ├── prep
+│   │   ├── meta.json
+│   │   ├── test_features.parquet
+│   │   ├── test_pairs.parquet
+│   │   ├── train.parquet
+│   │   └── valid.parquet
+│   └── raw
+│       ├── sales_train.csv
+│       └── test.csv
 ├── docs
-│   └── images
-│       └── pytest.png
-├── notebooks
-│   ├── Entendimientodelos_datosEDA.ipynb
-│   ├── FeatureEngineering.ipynb
-│   ├── Modeling.ipynb
-│   └── SimulationComparation.ipynb
-├── src
-│   ├── preprocessing
-│   │   ├── prep.py
-│   │   └── test
-│   │       └── test_prep.py
-│   ├── training
-│   │   ├── train.py
-│   │   └── test
-│   │       └── test_train.py
-│   ├── inference
-│   │   ├── inference.py
-│   │   └── test
-│   │       └── test_inference.py
-│   ├── config.py
-│   └── utils
-│       ├── data_validation.py
-│       ├── logging_utils.py
-│       └── metrics.py
+│   └── images
+│       └── pytest.png
+├── import json.py
+├── import os.jl
+├── import os.py
 ├── main.py
+├── notebooks
+│   ├── Entendimientodelos_datosEDA.ipynb
+│   ├── FeatureEngineering.ipynb
+│   ├── Modeling.ipynb
+│   └── SimulationComparation.ipynb
 ├── pyproject.toml
 ├── README.md
+├── src
+│   ├── __init__.py
+│   ├── __pycache__
+│   │   ├── __init__.cpython-312.pyc
+│   │   └── config.cpython-312.pyc
+│   ├── config.py
+│   ├── inference
+│   │   ├── __init__.py
+│   │   ├── __main__.py
+│   │   ├── __pycache__
+│   │   ├── Dockerfile
+│   │   ├── inference.py
+│   │   └── test
+│   ├── preprocessing
+│   │   ├── __init__.py
+│   │   ├── __main__.py
+│   │   ├── __pycache__
+│   │   ├── Dockerfile
+│   │   ├── prep.py
+│   │   └── test
+│   ├── training
+│   │   ├── __init__.py
+│   │   ├── __main__.py
+│   │   ├── __pycache__
+│   │   ├── Dockerfile
+│   │   ├── test
+│   │   └── train.py
+│   └── utils
+│       ├── __init__.py
+│       ├── __pycache__
+│       ├── data_validation.py
+│       ├── logging_utils.py
+│       └── metrics.py
+├── tmp
+│   ├── model
+│   │   └── model.joblib
+│   └── output
+├── tree.txt
 └── uv.lock
 ```
 
@@ -324,8 +357,32 @@ Estas pruebas garantizan que los componentes críticos del pipeline
 funcionan correctamente antes de cualquier despliegue o integración
 continua.
 
+---
+### Sagemaker y contenedor BYOC
 
-Referencias
+
+Se empaquetó el algoritmo en un contenedor BYOC compatible con SageMaker, se entrenó el modelo con un `Estimator` y se desplegó un endpoint de inferencia en tiempo real.
+
+### Estructura del contenedor 
+Se agregó el directorio `container/` para cumplir el contrato de SageMaker:
+
+- **`train`**: wrapper de entrenamiento. Lee datos e hiperparámetros desde `/opt/ml/input/...` y guarda el modelo en `/opt/ml/model/`.
+- **`serve`**: levanta el servidor de inferencia en el puerto 8080 usando Gunicorn, en lugar de ejecutar la app directamente con flask run
+- **`predictor.py`**: define las rutas /ping y /invocations para verificación y predicciones.
+- **`Dockerfile`**: construye la imagen BYOC para training/serving.
+- **`build_and_push.sh`**: construye la imagen y la sube a Amazon ECR.
+
+### Evidencia: imagen publicada en Amazon ECR
+La imagen `predict-future-sales-byoc:latest` fue construida y subida correctamente a Amazon ECR.
+
+<img width="2976" height="1010" alt="399B50C9-43D0-4150-85E9-2939D7AD72A2" src="https://github.com/user-attachments/assets/bffc2a58-999e-47ac-86f1-23208950b0b1" />
+
+### Evidencia: endpoint real-time + predicciones
+Se desplegó un endpoint de SageMaker y se verificó su estado **InService**. Luego se realizaron inferencias en tiempo real y se obtuvo una respuesta con `predictions`.
+
+<img width="2152" height="1286" alt="33FB5142-75AB-4301-96E4-28B099D4B29A" src="https://github.com/user-attachments/assets/c822ec5c-0333-4e97-b8b1-5e260836ff80" />
+
+
 
 Manokhin, V. (n.d.). Mastering modern time series forecasting: A comprehensive guide to statistical, machine learning, and deep learning models in Python (Early Access). Leanpub.
 
