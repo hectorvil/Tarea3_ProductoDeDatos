@@ -123,41 +123,41 @@ notebooks/
 └── uv.lock
 ```
 ## Archivos principales
--processing/container/Dockerfile
+- processing/container/Dockerfile
 
 Define la imagen Docker usada por SageMaker Processing.
 Incluye las librerías necesarias para correr el preprocesamiento.
 
--processing/preprocess.py
+- processing/preprocess.py
 
 Contiene la lógica de transformación de mi dataset.
 Lee los datos desde /opt/ml/processing/input/raw y guarda los resultados en /opt/ml/processing/output.
 
 Los archivos generados son:
 
-*train.csv
+* train.csv
 
-*valid.csv
+* valid.csv
 
-*test_features.csv
+* test_features.csv
 
-*test_pairs.csv
+* test_pairs.csv
 
--notebooks/sm_processing_byoc.ipynb
+- notebooks/sm_processing_byoc.ipynb
 
 Contiene el flujo completo de la tarea:
 
-1.-Setup de SageMaker
+1.- Setup de SageMaker
 
-2.-Carga del dataset a S3
+2.- Carga del dataset a S3
 
-3.-Build y push de la imagen a ECR
+3.- Build y push de la imagen a ECR
 
-4.-Ejecución del Processing Job
+4.- Ejecución del Processing Job
 
-5.-Verificación del output en S3
+5.- Verificación del output en S3
 
-6.-Inspección de las primeras filas del resultado
+6.- Inspección de las primeras filas del resultado
 ---
 ## Dependencias
 Dependencias del contenedor
@@ -179,11 +179,11 @@ sagemaker
 
 El script preprocess.py ajusta la lógica de preprocesamiento de nuestro proyecto para que pueda ejecutarse correctamente dentro de SageMaker Processing siguiente de forma general este flujo:
 
--Toma los archivos crudos del dataset
+- Toma los archivos crudos del dataset
 
--Luego limpia y transforma los datos
+- Luego limpia y transforma los datos
 
--Después construye los conjuntos de entrenamiento, validación y prueba
+- Después construye los conjuntos de entrenamiento, validación y prueba
 
 -Y por último genera archivos CSV listos para usarse después en el pipeline
 ---
@@ -193,13 +193,13 @@ El Processing Job se ejecuta con ScriptProcessor, usando una sola instancia de S
 
 La configuración se resume en los siguientes pasos:
 
--El input llegue desde S3 a /opt/ml/processing/input/raw
+- El input llegue desde S3 a /opt/ml/processing/input/raw
 
--luego el script corra con python3
+- luego el script corra con python3
 
--Donde los outputs se escriban en /opt/ml/processing/output
+- Donde los outputs se escriban en /opt/ml/processing/output
 
--Y SageMaker suba automáticamente esos resultados a S3
+- Y SageMaker suba automáticamente esos resultados a S3
 
 ---
 ## Evidencias y screenshots de ejecuciones y de los outputs
