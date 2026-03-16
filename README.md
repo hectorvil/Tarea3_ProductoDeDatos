@@ -1,111 +1,218 @@
 # MLOps en AWS SageMaker con BYOC para entrenamiento e inferencia en tiempo real
 
-Este repositorio implementa la adaptación de un proyecto de pronóstico de **demanda mensual** por combinación **producto–tienda** a un flujo de **MLOps en AWS SageMaker** usando el enfoque **BYOC (Bring Your Own Container)** para entrenamiento e inferencia.
+# Tarea 06 — SageMaker Processing BYOC
 
-El objetivo de esta entrega es llevar el pipeline previamente refactorizado a un entorno administrado de AWS, construyendo un **training container** y un **inference container** que sigan el contrato esperado por SageMaker. Con ello, el modelo puede entrenarse en infraestructura administrada, almacenar artefactos en S3 y exponerse mediante un **endpoint de inferencia en tiempo real**.
+## Objetivo
 
-El modelo principal conserva el enfoque en **dos etapas**: primero estima si habrá venta con una clasificación y después estima cuántas unidades se venderán con una regresión. Esto sigue siendo especialmente útil cuando la demanda es **esporádica**.
+En esta tarea se construyó un **SageMaker Processing Job** usando un **contenedor propio (BYOC)** para ejecutar el preprocesamiento de nuestros datos.
 
-## Resultados
-
-- Se adaptó el entrenamiento del modelo a un **training job de SageMaker** usando una imagen personalizada almacenada en **Amazon ECR**.
-- Se desplegó un **endpoint en tiempo real** en SageMaker usando una segunda imagen personalizada para serving.
-- Se validó una inferencia real enviando un payload válido al endpoint y obteniendo una respuesta correcta.
-- La arquitectura final cumple el flujo solicitado: **branch de desarrollo**, **contenedores Docker funcionales**, **notebook de SageMaker**, **training job exitoso** y **endpoint en servicio**.
+La idea fue separar el **preprocessing** del **training**. En lugar de transformar los datos en local, SageMaker toma los archivos crudos desde **S3**, ejecuta `preprocess.py` dentro del contenedor y guarda los archivos transformados nuevamente en **S3**.
 
 ---
 
-## Objetivo de esta entrega
+## Flujo del procesamiento
 
-En esta iteración se adaptó el repositorio para cumplir el contrato que espera **Amazon SageMaker** tanto en entrenamiento como en serving.
-
-Esto implicó:
-
-- construir una imagen Docker para **training**
-- construir una imagen Docker para **inference**
-- entrenar el modelo desde SageMaker usando un **Estimator**
-- almacenar el artefacto del modelo en **S3**
-- crear un objeto **Model** en SageMaker
-- levantar un **endpoint real-time**
-- probar el endpoint con una muestra válida de inferencia
+```text
+S3 (raw) -> /opt/ml/processing/input/raw -> preprocess.py -> /opt/ml/processing/output -> S3 (processed)
+```
 
 ---
+## Estructura agregada al repositorio
+```text
 
-## Estructura del repositorio
+processing/
+├── container/
+│   └── Dockerfile
+└── preprocess.py
+
+notebooks/
+└── sm_processing_byoc.ipynb
+```
+---
+## Estructura actualizada del repositorio
 
 ```text
 .
 ├── artifacts
-│   ├── logs
-│   │   ├── inference_20260214_000519.log
-│   │   ├── prep_20260213_235935.log
-│   │   └── train_20260214_000203.log
-│   └── model.joblib
+│   ├── logs
+│   │   ├── inference_20260214_000519.log
+│   │   ├── inference_20260301_122327.log
+│   │   ├── prep_20260213_235935.log
+│   │   ├── prep_20260301_122239.log
+│   │   ├── train_20260214_000203.log
+│   │   └── train_20260301_122252.log
+│   └── model.joblib
 ├── data
-│   ├── inference
-│   │   └── test_features.parquet
-│   ├── predictions
-│   │   └── submission.csv
-│   ├── prep
-│   │   ├── meta.json
-│   │   ├── test_features.parquet
-│   │   ├── test_pairs.parquet
-│   │   ├── train.parquet
-│   │   └── valid.parquet
-│   └── raw
-│       ├── sales_train.csv
-│       └── test.csv
+│   ├── inference
+│   │   └── test_features.parquet
+│   ├── predictions
+│   │   └── submission.csv
+│   ├── prep
+│   │   ├── meta.json
+│   │   ├── test_features.parquet
+│   │   ├── test_pairs.parquet
+│   │   ├── train.parquet
+│   │   └── valid.parquet
+│   └── raw
+│       ├── sales_train.csv
+│       └── test.csv
 ├── docs
-│   └── images
-│       ├── pytest.png
-│       ├── sagemaker_training_job_completed.png
-│       ├── sagemaker_endpoint_inservice.png
-│       ├── sagemaker_ecr_repositories.png
-│       ├── sagemaker_notebook_workflow.png
-│       ├── sagemaker_realtime_inference.png
-│       └── github_pr_sagemaker_feature.png
-├── notebooks
-│   ├── Entendimientodelos_datosEDA.ipynb
-│   ├── FeatureEngineering.ipynb
-│   ├── Modeling.ipynb
-│   ├── SimulationComparation.ipynb
-│   └── sagemaker_training.ipynb
-├── src
-│   ├── preprocessing
-│   │   ├── Dockerfile
-│   │   ├── __init__.py
-│   │   ├── __main__.py
-│   │   ├── prep.py
-│   │   └── test
-│   │       └── test_prep.py
-│   ├── training
-│   │   ├── Dockerfile
-│   │   ├── __init__.py
-│   │   ├── __main__.py
-│   │   ├── train.py
-│   │   └── test
-│   │       └── test_train.py
-│   ├── inference
-│   │   ├── Dockerfile
-│   │   ├── __init__.py
-│   │   ├── __main__.py
-│   │   ├── inference.py
-│   │   └── test
-│   │       └── test_inference.py
-│   ├── config.py
-│   └── utils
-│       ├── data_validation.py
-│       ├── logging_utils.py
-│       └── metrics.py
+│   └── images
+│       ├── github_pr_sagemaker_feature.png
+│       ├── pytest.png
+│       ├── sagemaker_ecr_repositories.png
+│       ├── sagemaker_endpoint_inservice.png
+│       ├── sagemaker_notebook_workflow.png
+│       ├── sagemaker_realtime_inference.png
+│       └── sagemaker_training_job_completed.png
+├── import json.py
+├── import os.jl
+├── import os.py
 ├── main.py
+├── notebooks
+│   ├── Entendimientodelos_datosEDA.ipynb
+│   ├── FeatureEngineering.ipynb
+│   ├── Modeling.ipynb
+│   ├── sagemaker_training.ipynb
+│   ├── SimulationComparation.ipynb
+│   └── sm_processing_byoc.ipynb
+├── processing
+│   ├── container
+│   │   └── Dockerfile
+│   └── preprocess.py
 ├── pyproject.toml
 ├── README.md
+├── src
+│   ├── __init__.py
+│   ├── __pycache__
+│   │   ├── __init__.cpython-312.pyc
+│   │   └── config.cpython-312.pyc
+│   ├── config.py
+│   ├── inference
+│   │   ├── __init__.py
+│   │   ├── __main__.py
+│   │   ├── __pycache__
+│   │   ├── Dockerfile
+│   │   ├── inference.py
+│   │   └── test
+│   ├── preprocessing
+│   │   ├── __init__.py
+│   │   ├── __main__.py
+│   │   ├── __pycache__
+│   │   ├── Dockerfile
+│   │   ├── prep.py
+│   │   └── test
+│   ├── training
+│   │   ├── __init__.py
+│   │   ├── __main__.py
+│   │   ├── __pycache__
+│   │   ├── Dockerfile
+│   │   ├── test
+│   │   └── train.py
+│   └── utils
+│       ├── __init__.py
+│       ├── __pycache__
+│       ├── data_validation.py
+│       ├── logging_utils.py
+│       └── metrics.py
+├── tmp
+│   ├── model
+│   │   └── model.joblib
+│   └── output
+├── tree.txt
 └── uv.lock
 ```
+## Archivos principales
+-processing/container/Dockerfile
 
-Cada step del pipeline conserva su organización modular, y en esta entrega se añadieron los archivos necesarios para que training e inference puedan ejecutarse dentro de contenedores compatibles con SageMaker.
+Define la imagen Docker usada por SageMaker Processing.
+Incluye las librerías necesarias para correr el preprocesamiento.
+
+-processing/preprocess.py
+
+Contiene la lógica de transformación de mi dataset.
+Lee los datos desde /opt/ml/processing/input/raw y guarda los resultados en /opt/ml/processing/output.
+
+Los archivos generados son:
+
+*train.csv
+
+*valid.csv
+
+*test_features.csv
+
+*test_pairs.csv
+
+-notebooks/sm_processing_byoc.ipynb
+
+Contiene el flujo completo de la tarea:
+
+1.-Setup de SageMaker
+
+2.-Carga del dataset a S3
+
+3.-Build y push de la imagen a ECR
+
+4.-Ejecución del Processing Job
+
+5.-Verificación del output en S3
+
+6.-Inspección de las primeras filas del resultado
+---
+## Dependencias
+Dependencias del contenedor
+
+scikit-learn
+
+pandas
+
+numpy
+
+Dependencias del notebook
+
+boto3
+
+sagemaker
 
 ---
+## Qué hace el preprocessing
+
+El script preprocess.py ajusta la lógica de preprocesamiento de nuestro proyecto para que pueda ejecutarse correctamente dentro de SageMaker Processing siguiente de forma general este flujo:
+
+-Toma los archivos crudos del dataset
+
+-Luego limpia y transforma los datos
+
+-Después construye los conjuntos de entrenamiento, validación y prueba
+
+-Y por último genera archivos CSV listos para usarse después en el pipeline
+---
+## Ejecución del Processing Job
+
+El Processing Job se ejecuta con ScriptProcessor, usando una sola instancia de SageMaker.
+
+La configuración se resume en los siguientes pasos:
+
+-El input llegue desde S3 a /opt/ml/processing/input/raw
+
+-luego el script corra con python3
+
+-Donde los outputs se escriban en /opt/ml/processing/output
+
+-Y SageMaker suba automáticamente esos resultados a S3
+
+---
+## Evidencias y screenshots de ejecuciones y de los outputs
+
+### Imagen funcional en Amazon ECR
+
+
+### Processing Job exitoso
+
+
+### Output en S3
+
+
 
 ## Git Workflow
 
