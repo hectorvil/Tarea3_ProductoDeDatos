@@ -204,15 +204,15 @@ La configuración se resume en los siguientes pasos:
 ## Evidencias y screenshots de ejecuciones y de los outputs
 
 ### Imagen funcional en Amazon ECR
-![ECR](images/evidenciaECR.png)
+![ECR](docs/images/evidenciaECR.png)
 
 ### Processing Job exitoso
-![Processing Job](images/jobsagemaker.png)
-![Processing Job2](images/jobsagemaker2.png)
+![Processing Job](docs/images/jobsagemaker.png)
+![Processing Job2](docs/images/jobsagemaker2.png)
 
 
 ### Output en S3
-![Output S3](images/Muestras3.png)
+![Output S3](docs/images/Muestras3.png)
 
 
 ## Git Workflow
