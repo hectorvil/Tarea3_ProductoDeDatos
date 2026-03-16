@@ -1,4 +1,3 @@
-# MLOps en AWS SageMaker con BYOC para entrenamiento e inferencia en tiempo real
 
 # Tarea 06 — SageMaker Processing BYOC
 
@@ -185,7 +184,7 @@ El script preprocess.py ajusta la lógica de preprocesamiento de nuestro proyect
 
 - Después construye los conjuntos de entrenamiento, validación y prueba
 
--Y por último genera archivos CSV listos para usarse después en el pipeline
+- Y por último genera archivos CSV listos para usarse después en el pipeline
 ---
 ## Ejecución del Processing Job
 
