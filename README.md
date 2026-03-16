@@ -129,7 +129,7 @@ Incluye las librerías necesarias para correr el preprocesamiento.
 
 ### processing/preprocess.py:
 
-Contiene la lógica de transformación de mi dataset.
+Contiene la lógica de transformación de nuestro dataset.
 Lee los datos desde /opt/ml/processing/input/raw y guarda los resultados en /opt/ml/processing/output.
 
 Los archivos generados son:
@@ -157,6 +157,7 @@ Contiene el flujo completo de la tarea:
 5.- Verificación del output en S3
 
 6.- Inspección de las primeras filas del resultado
+
 ---
 ## Dependencias
 ### Dependencias del contenedor
