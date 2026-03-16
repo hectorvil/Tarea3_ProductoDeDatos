@@ -122,12 +122,12 @@ notebooks/
 └── uv.lock
 ```
 ## Archivos principales
-- processing/container/Dockerfile
+### processing/container/Dockerfile:
 
 Define la imagen Docker usada por SageMaker Processing.
 Incluye las librerías necesarias para correr el preprocesamiento.
 
-- processing/preprocess.py
+### processing/preprocess.py:
 
 Contiene la lógica de transformación de mi dataset.
 Lee los datos desde /opt/ml/processing/input/raw y guarda los resultados en /opt/ml/processing/output.
@@ -142,7 +142,7 @@ Los archivos generados son:
 
 + test_pairs.csv
 
-- notebooks/sm_processing_byoc.ipynb
+### notebooks/sm_processing_byoc.ipynb:
 
 Contiene el flujo completo de la tarea:
 
@@ -159,19 +159,19 @@ Contiene el flujo completo de la tarea:
 6.- Inspección de las primeras filas del resultado
 ---
 ## Dependencias
-Dependencias del contenedor
+### Dependencias del contenedor
 
-scikit-learn
+- scikit-learn
 
-pandas
+- pandas
 
-numpy
+- numpy
 
-Dependencias del notebook
+### Dependencias del notebook
 
-boto3
+- boto3
 
-sagemaker
+- sagemaker
 
 ---
 ## Qué hace el preprocessing
