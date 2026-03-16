@@ -134,13 +134,13 @@ Lee los datos desde /opt/ml/processing/input/raw y guarda los resultados en /opt
 
 Los archivos generados son:
 
-* train.csv
++ train.csv
 
-* valid.csv
++ valid.csv
 
-* test_features.csv
++ test_features.csv
 
-* test_pairs.csv
++ test_pairs.csv
 
 - notebooks/sm_processing_byoc.ipynb
 
