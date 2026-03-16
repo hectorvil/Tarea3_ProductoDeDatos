@@ -212,7 +212,7 @@ La configuración se resume en los siguientes pasos:
 ![Processing Job2](docs/images/jobsagemaker2.png)
 
 
-### Output en S3
+### Output en S3 con lectura en sagemaker de 10 registros
 ![Output S3](docs/images/Muestras3.png)
 
 
