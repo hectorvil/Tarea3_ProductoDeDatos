@@ -5,6 +5,8 @@ ENV PYTHONUNBUFFERED=1
 
 WORKDIR /app
 
+ENV PYTHONPATH=/app/src
+
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     libgomp1 \
