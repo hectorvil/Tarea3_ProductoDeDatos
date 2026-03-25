@@ -511,43 +511,16 @@ def construir_outputs(panel_build: PanelBuild, feature_cols: list[str]) -> PrepO
 def guardar_salidas(prep_dir: Path, outputs: PrepOutputs) -> None:
     """
     Guarda datasets preparados y metadata.
-    Compatible con SageMaker Processing.
     """
+    prep_dir.mkdir(parents=True, exist_ok=True)
 
-    import os
+    outputs.train_out.to_parquet(prep_dir / "train.parquet", index=False)
+    outputs.valid_out.to_parquet(prep_dir / "valid.parquet", index=False)
+    outputs.test_out.to_parquet(prep_dir / "test_features.parquet", index=False)
+    outputs.test_pairs.to_parquet(prep_dir / "test_pairs.parquet", index=False)
 
-    # Detectamos si estamos en SageMaker Processing
-    if os.environ.get("SM_MODEL_DIR") or Path("/opt/ml/processing").exists():
-        base_dir = Path("/opt/ml/processing/output")
-
-        train_dir = base_dir / "train"
-        valid_dir = base_dir / "validation"
-        test_dir = base_dir / "test"
-
-        train_dir.mkdir(parents=True, exist_ok=True)
-        valid_dir.mkdir(parents=True, exist_ok=True)
-        test_dir.mkdir(parents=True, exist_ok=True)
-
-        # Guardamos parquet en rutas que espera SageMaker
-        outputs.train_out.to_parquet(train_dir / "train.parquet", index=False)
-        outputs.valid_out.to_parquet(valid_dir / "valid.parquet", index=False)
-        outputs.test_out.to_parquet(test_dir / "test.parquet", index=False)
-
-        # meta también (lo va a usar training)
-        with open(train_dir / "meta.json", "w") as f:
-            json.dump(outputs.meta, f)
-
-    else:
-        # Comportamiento local
-        prep_dir.mkdir(parents=True, exist_ok=True)
-
-        outputs.train_out.to_parquet(prep_dir / "train.parquet", index=False)
-        outputs.valid_out.to_parquet(prep_dir / "valid.parquet", index=False)
-        outputs.test_out.to_parquet(prep_dir / "test_features.parquet", index=False)
-        outputs.test_pairs.to_parquet(prep_dir / "test_pairs.parquet", index=False)
-
-        with (prep_dir / "meta.json").open("w", encoding="utf-8") as file:
-            json.dump(outputs.meta, file, indent=2)
+    with (prep_dir / "meta.json").open("w", encoding="utf-8") as file:
+        json.dump(outputs.meta, file, indent=2)
 
 
 def construir_panel_con_features(clean: RawData) -> PanelBuild:
