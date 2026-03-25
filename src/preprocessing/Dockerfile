@@ -21,4 +21,4 @@ RUN pip install pandas numpy scikit-learn
 
 COPY src /app/src
 
-ENTRYPOINT ["uv", "run", "python"]
+ENTRYPOINT ["python"]
