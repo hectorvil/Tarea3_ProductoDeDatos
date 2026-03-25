@@ -49,6 +49,7 @@ from src.config import (
 from src.utils.data_validation import require_columns, require_file
 from src.utils.logging_utils import get_logger
 
+RAW_DIR = Path("/opt/ml/processing/input")
 
 @dataclass(frozen=True)
 class RawData:
@@ -612,12 +613,25 @@ def log_outputs_summary(
     )
 
 
-def run_prep_pipeline(logger: logging.Logger) -> None:
+def run_prep_pipeline(
+    logger: logging.Logger,
+    raw_dir: Path,
+    prep_dir: Path
+) -> None:
     """
     Ejecuta el pipeline completo de prep, con logging por etapa.
+
+    Parameters
+    ----------
+    logger : logging.Logger
+        Logger para seguimiento de ejecución.
+    raw_dir : Path
+        Directorio donde están los datos raw (SageMaker o local).
+    prep_dir : Path
+        Directorio donde se guardan los outputs.
     """
     with log_stage(logger, "cargar_datos_raw"):
-        raw = cargar_datos_raw(RAW_DIR)
+        raw = cargar_datos_raw(raw_dir)
         log_df_info(logger, "train_raw", raw.train)
         log_df_info(logger, "test_raw", raw.test)
 
@@ -646,13 +660,16 @@ def run_prep_pipeline(logger: logging.Logger) -> None:
         log_outputs_summary(logger, outputs, panel_build)
 
     with log_stage(logger, "guardar_salidas"):
-        guardar_salidas(PREP_DIR, outputs)
-        logger.info("Archivos guardados en: %s", PREP_DIR.as_posix())
+        guardar_salidas(prep_dir, outputs)
+        logger.info("Archivos guardados en: %s", prep_dir.as_posix())
 
 
 def main() -> None:
     """
     Punto de entrada principal del pipeline de preparación y features.
+
+    Detecta automáticamente si se está ejecutando en entorno SageMaker
+    o local, y ajusta las rutas de entrada/salida en consecuencia.
     """
     logger = get_logger(__name__, log_dir=LOG_DIR, prefijo_archivo="prep")
     start_total = time.perf_counter()
@@ -660,7 +677,17 @@ def main() -> None:
     logger.info("Iniciando pipeline de preparación (prep).")
 
     try:
-        run_prep_pipeline(logger)
+        from pathlib import Path
+
+        if Path("/opt/ml/processing").exists():
+            raw_dir = Path("/opt/ml/processing/input")
+            prep_dir = Path("/opt/ml/processing/output")
+        else:
+            raw_dir = RAW_DIR
+            prep_dir = PREP_DIR
+
+        run_prep_pipeline(logger, raw_dir=raw_dir, prep_dir=prep_dir)
+
     except Exception as exc:  # noqa: BLE001
         logger.exception("Prep falló: %s", str(exc))
         raise
