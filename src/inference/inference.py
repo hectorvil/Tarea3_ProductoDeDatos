@@ -148,7 +148,12 @@ def cargar_request_as_dataframe(content_type: str, body: bytes) -> pd.DataFrame:
             return pd.read_csv(io.StringIO(csv_text))
         payload = obtener_modelo()
         feature_cols = payload["bundle"]["feature_cols"]
-        return pd.read_csv(io.StringIO(csv_text), header=None, names=feature_cols)
+        return pd.read_csv(
+            io.StringIO(csv_text),
+            header=None,
+            names=feature_cols,
+            dtype=np.float32,
+        )
 
     raise ValueError(
         "Content-Type no soportado. Usa application/json o text/csv."
