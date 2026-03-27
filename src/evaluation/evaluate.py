@@ -15,9 +15,19 @@ def main():
     
     # Cargamos modelos
     
-    model_path = os.path.join(base_dir, "input", "model", "model.joblib")
+    import tarfile
+    
+    model_tar_path = os.path.join(base_dir, "input", "model", "model.tar.gz")
+    extract_dir = os.path.join(base_dir, "input", "model_extracted")
+    
+    os.makedirs(extract_dir, exist_ok=True)
+    
+    with tarfile.open(model_tar_path, "r:gz") as tar:
+        tar.extractall(path=extract_dir)
+        
+    model_path = os.path.join(extract_dir, "model.joblib")
     payload = joblib.load(model_path)
-
+        
     bundle = payload["bundle"]
     feature_cols = bundle["feature_cols"]
 
