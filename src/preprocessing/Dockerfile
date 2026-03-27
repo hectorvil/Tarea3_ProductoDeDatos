@@ -17,7 +17,7 @@ RUN pip install --no-cache-dir uv
 COPY pyproject.toml uv.lock README.md /app/
 RUN uv sync --frozen --no-dev --no-install-project
 
-RUN pip install pandas numpy scikit-learn pyarrow
+RUN pip install pandas numpy scikit-learn pyarrow lightgbm
 
 COPY src /app/src
 
