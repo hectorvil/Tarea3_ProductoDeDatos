@@ -532,7 +532,7 @@ def guardar_salidas(prep_dir: Path, outputs: PrepOutputs) -> None:
         # Guardamos parquet en rutas que espera SageMaker
         outputs.train_out.to_parquet(train_dir / "train.parquet", index=False)
         outputs.valid_out.to_parquet(valid_dir / "valid.parquet", index=False)
-        outputs.test_out.to_parquet(test_dir / "test.parquet", index=False)
+        outputs.test_out.to_csv(test_dir / "test.csv", index=False)
 
         # meta también (lo va a usar training)
         with open(train_dir / "meta.json", "w") as f:
