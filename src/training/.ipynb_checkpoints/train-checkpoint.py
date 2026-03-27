@@ -91,13 +91,13 @@ class ModelBundle:
     cat_features: list[str]
 
 
-def cargar_datasets(train_dir: Path, validation_dir: Path) -> TrainInputs:
+def cargar_datasets(prep_dir: Path) -> TrainInputs:
     """
     Carga train/valid parquet y meta.json con la lista de features.
     """
-    train_path = train_dir / "train.parquet"
-    valid_path = validation_dir / "valid.parquet"
-    meta_path = train_dir / "meta.json"
+    train_path = prep_dir / "train.parquet"
+    valid_path = prep_dir / "valid.parquet"
+    meta_path = prep_dir / "meta.json"
 
     require_file(train_path)
     require_file(valid_path)
@@ -295,10 +295,9 @@ def main() -> None:
     logger.info("Iniciando entrenamiento.")
 
     try:
-        train_dir = Path("/opt/ml/input/data/train") if Path("/opt/ml/input/data/train").exists() else PREP_DIR
-        validation_dir = Path("/opt/ml/input/data/validation") if Path("/opt/ml/input/data/validation").exists() else PREP_DIR
-        
-        inputs = cargar_datasets(train_dir, validation_dir)
+        prep_dir = Path("/opt/ml/input/data/train") if Path("/opt/ml/input/data/train").exists() else PREP_DIR
+
+        inputs = cargar_datasets(prep_dir)
 
         logger.info(
             "Datasets cargados. train_rows=%d valid_rows=%d",

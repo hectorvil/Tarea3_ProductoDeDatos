@@ -142,22 +142,7 @@ def cargar_request_as_dataframe(content_type: str, body: bytes) -> pd.DataFrame:
         raise ValueError("JSON inválido para inferencia.")
 
     if "text/csv" in content_type:
-        csv_text = body.decode("utf-8")
-        payload = obtener_modelo()
-        feature_cols = payload["bundle"]["feature_cols"]
-        
-        first_line = csv_text.splitlines()[0].strip() if csv_text.strip() else ""
-        header_tokens = [token.strip() for token in first_line.split(",")] if first_line else []
-        
-        if header_tokens == feature_cols:
-            return pd.read_csv(io.StringIO(csv_text), dtype=np.float32)
-            
-        return pd.read_csv(
-            io.StringIO(csv_text),
-            header=None,
-            names=feature_cols,
-            dtype=np.float32,
-        )
+        return pd.read_csv(io.StringIO(body.decode("utf-8")))
 
     raise ValueError(
         "Content-Type no soportado. Usa application/json o text/csv."
