@@ -33,9 +33,16 @@ def main():
 
 
     # Cargamos test data
+
+    test_dir = os.path.join(base_dir, "input", "test")
     
-    test_path = os.path.join(base_dir, "input", "test", "test.parquet")
-    df = pd.read_parquet(test_path)
+    valid_path = os.path.join(test_dir, "valid.parquet")
+    test_path = os.path.join(test_dir, "test.parquet")
+    
+    if os.path.exists(valid_path):
+        df = pd.read_parquet(valid_path)
+    else:
+        df = pd.read_parquet(test_path)
 
     
     # Estructura real
